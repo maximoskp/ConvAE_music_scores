@@ -96,9 +96,10 @@ with tf.Session() as sess:
         # Prepare Data
         # Get the next batch of MNIST data (only images are needed, not labels)
         batch_x, _ = mnist.train.next_batch(batch_size)
+        batch_x = np.reshape(batch_x, newshape=[-1, 28, 28, 1])
 
         # Run optimization op (backprop) and cost op (to get loss value)
-        _, l = sess.run([optimizer, loss], feed_dict={X: batch_x.reshape([rows, columns, batch_size])})
+        _, l = sess.run([optimizer, loss], feed_dict={X: batch_x})
         # Display logs per step
         if i % display_step == 0 or i == 1:
             print('Step %i: Minibatch Loss: %f' % (i, l))
