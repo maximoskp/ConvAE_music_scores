@@ -34,8 +34,12 @@ np.random.shuffle( serialised_segments )
 
 # Training Parameters
 learning_rate = 0.01 # it was 0.01
-num_steps = 1000 # possibly increase a lot
+num_steps = 30000 # possibly increase a lot
 batch_size = 256
+
+display_step = 100
+examples_to_show = 10
+num_input = rows*columns
 
 # __MAX__
 # split in batches
@@ -56,10 +60,6 @@ while batch_idx_end < serialised_segments.shape[0]:
         batches_train.append( serialised_segments[ batch_idx_start:batch_idx_end,: ] )
         batch_idx_start += batch_size
     tmp_counter += 1
-
-display_step = 1000
-examples_to_show = 10
-num_input = rows*columns
 
 # tf Graph input (only pictures)
 X = tf.placeholder("float", [None, rows, columns, 1])
