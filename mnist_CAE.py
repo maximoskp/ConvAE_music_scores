@@ -98,7 +98,7 @@ with tf.Session() as sess:
         batch_x, _ = mnist.train.next_batch(batch_size)
 
         # Run optimization op (backprop) and cost op (to get loss value)
-        _, l = sess.run([optimizer, loss], feed_dict={X: batch_x.reshape([rows, columns, 1]})
+        _, l = sess.run([optimizer, loss], feed_dict={X: batch_x.reshape([rows, columns, 1])})
         # Display logs per step
         if i % display_step == 0 or i == 1:
             print('Step %i: Minibatch Loss: %f' % (i, l))
