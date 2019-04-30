@@ -121,11 +121,16 @@ with tf.Session() as sess:
     # Run the initializer
     sess.run(init)
 
+    # __MAX__
+    batch_idx = 0
     # Training
     for i in range(1, num_steps+1):
         # Prepare Data
         # Get the next batch of MNIST data (only images are needed, not labels)
-        batch_x, _ = mnist.train.next_batch(batch_size)
+        # batch_x, _ = mnist.train.next_batch(batch_size)
+        batch_x = batches_train[ batch_idx ]
+        batch_idx += 1
+        batch_idx = batch_idx%len(batches_train)
         batch_x = np.reshape(batch_x, newshape=[-1, rows, columns, 1])
 
         # Run optimization op (backprop) and cost op (to get loss value)
@@ -139,9 +144,14 @@ with tf.Session() as sess:
     n = 4
     canvas_orig = np.empty((rows * n, columns * n))
     canvas_recon = np.empty((rows * n, columns * n))
+    # __MAX__
+    batch_idx = 0
     for i in range(n):
         # MNIST test set
-        batch_x, _ = mnist.test.next_batch(n)
+        # batch_x, _ = mnist.test.next_batch(n)
+        batch_x = batches_test[ batch_idx ][:n,:]
+        batch_idx += 1
+        batch_idx = batch_idx%len(batches_test)
         batch_x_reshaped = np.reshape(batch_x, newshape=[-1, rows, columns, 1])
         # Encode and decode the digit image
         g = sess.run(decoder_op, feed_dict={X: batch_x_reshaped})
