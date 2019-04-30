@@ -112,8 +112,9 @@ with tf.Session() as sess:
     for i in range(n):
         # MNIST test set
         batch_x, _ = mnist.test.next_batch(n)
+        batch_x_reshaped = np.reshape(batch_x, newshape=[-1, 28, 28, 1])
         # Encode and decode the digit image
-        g = sess.run(decoder_op, feed_dict={X: batch_x})
+        g = sess.run(decoder_op, feed_dict={X: batch_x_reshaped})
 
         # Display original images
         for j in range(n):
