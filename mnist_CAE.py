@@ -30,9 +30,11 @@ examples_to_show = 10
 
 # Network Parameters
 num_input = 784 # MNIST data input (img shape: 28*28)
+rows = 28
+columns = 28
 
 # tf Graph input (only pictures)
-X = tf.placeholder("float", [None, num_input])
+X = tf.placeholder("float", [None, rows, columns, 1])
 
 # Building the encoder
 def encoder(x):
@@ -96,7 +98,7 @@ with tf.Session() as sess:
         batch_x, _ = mnist.train.next_batch(batch_size)
 
         # Run optimization op (backprop) and cost op (to get loss value)
-        _, l = sess.run([optimizer, loss], feed_dict={X: batch_x})
+        _, l = sess.run([optimizer, loss], feed_dict={X: batch_x.reshape([rows, columns, 1]})
         # Display logs per step
         if i % display_step == 0 or i == 1:
             print('Step %i: Minibatch Loss: %f' % (i, l))
@@ -121,7 +123,7 @@ with tf.Session() as sess:
         for j in range(n):
             # Draw the reconstructed digits
             canvas_recon[i * 28:(i + 1) * 28, j * 28:(j + 1) * 28] = \
-                g[j].reshape([28, 28])
+                g[j])
 
     print("Original Images")
     plt.figure(figsize=(n, n))
