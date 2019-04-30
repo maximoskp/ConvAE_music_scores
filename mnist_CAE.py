@@ -125,7 +125,7 @@ with tf.Session() as sess:
         for j in range(n):
             # Draw the reconstructed digits
             canvas_recon[i * 28:(i + 1) * 28, j * 28:(j + 1) * 28] = \
-                g[j].reshape([28, 28])
+                tf.squeeze(g[j])
 
     print("Original Images")
     plt.figure(figsize=(n, n))
