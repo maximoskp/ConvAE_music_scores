@@ -61,7 +61,7 @@ biases = {
 }
 
 # Building the decoder
-def conv_decoder(x):
+def conv_decoder(x, reuse=True):
     # TensorFlow Layers automatically create variables and calculate their
     # shape, based on the input.
     x = tf.layers.dense(x, units=6 * 6 * 128)
