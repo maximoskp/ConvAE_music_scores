@@ -74,7 +74,7 @@ def decoder(x):
     # Apply sigmoid to clip values between 0 and 1
     x = tf.nn.sigmoid(x)
     # back to flat
-    x = tf.reshape( x , rows*columns )
+    x = tf.reshape( x , [ -1, rows*columns] )
     return x
 
 # Construct model
