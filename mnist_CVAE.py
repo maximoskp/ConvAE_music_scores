@@ -139,8 +139,9 @@ with tf.Session() as sess:
     # Rebuild the decoder to create image from noise
     decoder = tf.matmul(noise_input, weights['decoder_h1']) + biases['decoder_b1']
     decoder = tf.nn.tanh(decoder)
-    decoder = tf.matmul(decoder, weights['decoder_out']) + biases['decoder_out']
-    decoder = tf.nn.sigmoid(decoder)
+    # decoder = tf.matmul(decoder, weights['decoder_out']) + biases['decoder_out']
+    # decoder = tf.nn.sigmoid(decoder)
+    decoder = conv_decoder(decoder)
 
     # Building a manifold of generated digits
     n = 20
