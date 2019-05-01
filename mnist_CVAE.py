@@ -179,7 +179,7 @@ with tf.Session() as sess:
         for j, xi in enumerate(y_axis):
             z_mu = np.array([[xi, yi]] * batch_size)
             # x_mean = sess.run(decoder, feed_dict={noise_input: z_mu})
-            x_mean = sess.run(decoder, feed_dict={Z: z_mu})
+            x_mean = sess.run(decoder_op, feed_dict={Z: z_mu})
             canvas[(n - i - 1) * 28:(n - i) * 28, j * 28:(j + 1) * 28] = \
             x_mean[0].reshape(28, 28)
 
