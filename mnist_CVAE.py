@@ -142,7 +142,7 @@ with tf.Session() as sess:
     decoder = tf.nn.tanh(decoder)
     # decoder = tf.matmul(decoder, weights['decoder_out']) + biases['decoder_out']
     # decoder = tf.nn.sigmoid(decoder)
-    decoder = sess.run( conv_decoder(decoder) )
+    decoder = sess.run( conv_decoder(decoder), feed_dict={input_image: []} )
 
     # Building a manifold of generated digits
     n = 20
