@@ -33,7 +33,9 @@ num_steps = 30000
 batch_size = 64
 
 # Network Parameters
-image_dim = 784 # MNIST images are 28x28 pixels
+rows = 28
+columns = 28
+image_dim = rows*columns # MNIST images are 28x28 pixels
 hidden_dim = 512
 latent_dim = 2
 
