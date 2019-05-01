@@ -158,10 +158,10 @@ with tf.Session() as sess:
         _, l, predic = sess.run([train_op, loss_op, decoder_op], feed_dict=feed_dict)
         if i % display_step == 0 or i == 1:
             print('Step %i, Loss: %f' % (i, l))
-            print(batch_x.reshape(28,28))
+            print(batch_x[0,:].reshape(28,28))
             print('=========================================')
             # print('tmp_latent.shape:', tmp_latent.shape)
-            print(predic.reshape(28,28))
+            print(predic[0,:].reshape(28,28))
 
     # Testing
     # Generator takes noise as input
