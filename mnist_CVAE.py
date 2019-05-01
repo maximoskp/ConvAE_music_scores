@@ -70,7 +70,7 @@ def encoder(x):
     eps = tf.random_normal(tf.shape(z_std), dtype=tf.float32, mean=0., stddev=1.0,
                             name='epsilon')
     z = z_mean + tf.exp(z_std / 2) * eps
-    return z
+    return z, z_mean, z_std
 
 # Building the decoder
 def decoder(x):
@@ -112,7 +112,7 @@ def decoder(x):
 # decoder = tf.nn.sigmoid(decoder)
 # decoder = conv_decoder(decoder)
 
-encoder_op = encoder(input_image)
+encoder_op, encoder_z_mean, encoder_z_std = encoder(input_image)
 Z = tf.placeholder(tf.float32, shape=[None, latent_dim])
 decoder_op = decoder(Z)
 
@@ -122,7 +122,7 @@ y_pred = decoder_op
 y_true = input_image
 
 # Define VAE Loss
-def vae_loss(x_reconstructed, x_true):
+def vae_loss(x_reconstructed, x_true, z_mean, z_std):
     # Reconstruction loss
     encode_decode_loss = x_true * tf.log(1e-10 + x_reconstructed) \
                          + (1 - x_true) * tf.log(1e-10 + 1 - x_reconstructed)
@@ -132,7 +132,7 @@ def vae_loss(x_reconstructed, x_true):
     kl_div_loss = -0.5 * tf.reduce_sum(kl_div_loss, 1)
     return tf.reduce_mean(encode_decode_loss + kl_div_loss)
 
-loss_op = vae_loss(y_pred, y_true)
+loss_op = vae_loss(y_pred, y_true, encoder_z_mean, encoder_z_std)
 optimizer = tf.train.RMSPropOptimizer(learning_rate=learning_rate)
 train_op = optimizer.minimize(loss_op)
 
@@ -152,7 +152,7 @@ with tf.Session() as sess:
 
         # Train
         # run encoder
-        tmp_latent = sess.run( encoder_op, feed_dict={input_image: batch_x} )
+        tmp_latent, _, _ = sess.run( encoder_op, feed_dict={input_image: batch_x} )
         # run error on decoder
         feed_dict = {Z: tmp_latent}
         _, l = sess.run([train_op, loss_op], feed_dict=feed_dict)
