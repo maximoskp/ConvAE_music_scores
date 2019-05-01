@@ -61,23 +61,23 @@ biases = {
 }
 
 # Building the decoder
-def conv_decoder(x, reuse=True):
-    # TensorFlow Layers automatically create variables and calculate their
-    # shape, based on the input.
-    x = tf.layers.dense(x, units=6 * 6 * 128)
-    x = tf.nn.tanh(x)
-    # Reshape to a 4-D array of images: (batch, height, width, channels)
-    # New shape: (batch, 6, 6, 128)
-    x = tf.reshape(x, shape=[-1, 6, 6, 128])
-    # Deconvolution, image shape: (batch, 14, 14, 64)
-    x = tf.layers.conv2d_transpose(x, 64, 4, strides=2)
-    # Deconvolution, image shape: (batch, 28, 28, 1)
-    x = tf.layers.conv2d_transpose(x, 1, 2, strides=2)
-    # Apply sigmoid to clip values between 0 and 1
-    x = tf.nn.sigmoid(x)
-    # back to flat
-    x = tf.reshape( x , [ -1, rows*columns] )
-    return x
+# def conv_decoder(x, reuse=True):
+#     # TensorFlow Layers automatically create variables and calculate their
+#     # shape, based on the input.
+#     x = tf.layers.dense(x, units=6 * 6 * 128)
+#     x = tf.nn.tanh(x)
+#     # Reshape to a 4-D array of images: (batch, height, width, channels)
+#     # New shape: (batch, 6, 6, 128)
+#     x = tf.reshape(x, shape=[-1, 6, 6, 128])
+#     # Deconvolution, image shape: (batch, 14, 14, 64)
+#     x = tf.layers.conv2d_transpose(x, 64, 4, strides=2)
+#     # Deconvolution, image shape: (batch, 28, 28, 1)
+#     x = tf.layers.conv2d_transpose(x, 1, 2, strides=2)
+#     # Apply sigmoid to clip values between 0 and 1
+#     x = tf.nn.sigmoid(x)
+#     # back to flat
+#     x = tf.reshape( x , [ -1, rows*columns] )
+#     return x
 
 
 # Building the encoder
@@ -97,7 +97,20 @@ decoder = tf.matmul(z, weights['decoder_h1']) + biases['decoder_b1']
 decoder = tf.nn.tanh(decoder)
 # decoder = tf.matmul(decoder, weights['decoder_out']) + biases['decoder_out']
 # decoder = tf.nn.sigmoid(decoder)
-decoder = conv_decoder(decoder)
+# decoder = conv_decoder(decoder)
+decoder = tf.layers.dense(decoder, units=6 * 6 * 128)
+decoder = tf.nn.tanh(decoder)
+# Reshape to a 4-D array of images: (batch, height, width, channels)
+# New shape: (batch, 6, 6, 128)
+decoder = tf.reshape(decoder, shape=[-1, 6, 6, 128])
+# Deconvolution, image shape: (batch, 14, 14, 64)
+decoder = tf.layers.conv2d_transpose(decoder, 64, 4, strides=2)
+# Deconvolution, image shape: (batch, 28, 28, 1)
+decoder = tf.layers.conv2d_transpose(decoder, 1, 2, strides=2)
+# Apply sigmoid to clip values between 0 and 1
+decoder = tf.nn.sigmoid(decoder)
+# back to flat
+decoder = tf.reshape( decoder , [ -1, rows*columns] )
 
 # Define VAE Loss
 def vae_loss(x_reconstructed, x_true):
@@ -142,6 +155,20 @@ with tf.Session() as sess:
     decoder = tf.nn.tanh(decoder)
     # decoder = tf.matmul(decoder, weights['decoder_out']) + biases['decoder_out']
     # decoder = tf.nn.sigmoid(decoder)
+    # decoder = conv_decoder(decoder)
+    decoder = tf.layers.dense(decoder, units=6 * 6 * 128)
+    decoder = tf.nn.tanh(decoder)
+    # Reshape to a 4-D array of images: (batch, height, width, channels)
+    # New shape: (batch, 6, 6, 128)
+    decoder = tf.reshape(decoder, shape=[-1, 6, 6, 128])
+    # Deconvolution, image shape: (batch, 14, 14, 64)
+    decoder = tf.layers.conv2d_transpose(decoder, 64, 4, strides=2)
+    # Deconvolution, image shape: (batch, 28, 28, 1)
+    decoder = tf.layers.conv2d_transpose(decoder, 1, 2, strides=2)
+    # Apply sigmoid to clip values between 0 and 1
+    decoder = tf.nn.sigmoid(decoder)
+    # back to flat
+    decoder = tf.reshape( decoder , [ -1, rows*columns] )
 
     # Building a manifold of generated digits
     n = 20
@@ -152,7 +179,7 @@ with tf.Session() as sess:
     for i, yi in enumerate(x_axis):
         for j, xi in enumerate(y_axis):
             z_mu = np.array([[xi, yi]] * batch_size)
-            x_mean = sess.run(conv_decoder(decoder), feed_dict={noise_input: z_mu})
+            x_mean = sess.run(decoder, feed_dict={noise_input: z_mu})
             canvas[(n - i - 1) * 28:(n - i) * 28, j * 28:(j + 1) * 28] = \
             x_mean[0].reshape(28, 28)
 
