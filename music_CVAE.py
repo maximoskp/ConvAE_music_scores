@@ -82,15 +82,34 @@ weights = {
     'z_mean': tf.Variable(glorot_init([hidden_dim, latent_dim])),
     'z_std': tf.Variable(glorot_init([hidden_dim, latent_dim])),
     'decoder_h1': tf.Variable(glorot_init([latent_dim, hidden_dim])),
-    'decoder_out': tf.Variable(glorot_init([hidden_dim, image_dim]))
+    # 'decoder_out': tf.Variable(glorot_init([hidden_dim, image_dim]))
 }
 biases = {
     'encoder_b1': tf.Variable(glorot_init([hidden_dim])),
     'z_mean': tf.Variable(glorot_init([latent_dim])),
     'z_std': tf.Variable(glorot_init([latent_dim])),
     'decoder_b1': tf.Variable(glorot_init([hidden_dim])),
-    'decoder_out': tf.Variable(glorot_init([image_dim]))
+    # 'decoder_out': tf.Variable(glorot_init([image_dim]))
 }
+
+# Building the decoder
+def conv_decoder(x):
+    # TensorFlow Layers automatically create variables and calculate their
+    # shape, based on the input.
+    x = tf.layers.dense(x, units= (int(np.floor(rows/4))-1) * (int(np.floor(columns/4))-1) * 128)
+    x = tf.nn.tanh(x)
+    # Reshape to a 4-D array of images: (batch, height, width, channels)
+    # New shape: (batch, 15, 15, 128)
+    x = tf.reshape(x, shape=[-1, int(np.floor(rows/4))-1, int(np.floor(columns/4))-1, 128])
+    # Deconvolution, image shape: (batch, 32, 32, 64)
+    x = tf.layers.conv2d_transpose(x, 64, [4,4], strides=2)
+    # Deconvolution, image shape: (batch, 65, 64, 1)
+    x = tf.layers.conv2d_transpose(x, 1, [3,2], strides=2)
+    # Apply sigmoid to clip values between 0 and 1
+    x = tf.nn.sigmoid(x)
+    # back to flat
+    x = tf.reshape( x , [ -1, rows*columns] )
+    return x
 
 # Building the encoder
 input_image = tf.placeholder(tf.float32, shape=[None, image_dim])
@@ -107,9 +126,9 @@ z = z_mean + tf.exp(z_std / 2) * eps
 # Building the decoder (with scope to re-use these layers later)
 decoder = tf.matmul(z, weights['decoder_h1']) + biases['decoder_b1']
 decoder = tf.nn.tanh(decoder)
-decoder = tf.matmul(decoder, weights['decoder_out']) + biases['decoder_out']
-decoder = tf.nn.sigmoid(decoder)
-
+# decoder = tf.matmul(decoder, weights['decoder_out']) + biases['decoder_out']
+# decoder = tf.nn.sigmoid(decoder)
+decoder = conv_decoder(decoder)
 
 # Define VAE Loss
 def vae_loss(x_reconstructed, x_true):
@@ -158,8 +177,9 @@ with tf.Session() as sess:
     # Rebuild the decoder to create image from noise
     decoder = tf.matmul(noise_input, weights['decoder_h1']) + biases['decoder_b1']
     decoder = tf.nn.tanh(decoder)
-    decoder = tf.matmul(decoder, weights['decoder_out']) + biases['decoder_out']
-    decoder = tf.nn.sigmoid(decoder)
+    # decoder = tf.matmul(decoder, weights['decoder_out']) + biases['decoder_out']
+    # decoder = tf.nn.sigmoid(decoder)
+    decoder = conv_decoder(decoder)
 
     # Building a manifold of generated digits
     n = 20
