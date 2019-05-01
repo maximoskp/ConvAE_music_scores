@@ -91,7 +91,6 @@ def decoder(x):
     x = tf.nn.sigmoid(x)
     # back to flat
     x = tf.reshape( x , [ -1, rows*columns] )
-    print('x: ', x)
     return x
 
 
@@ -156,11 +155,12 @@ with tf.Session() as sess:
         tmp_latent = sess.run( encoder_op, feed_dict={input_image: batch_x} )
         # run error on decoder
         feed_dict = {input_image: batch_x, Z: tmp_latent}
-        _, l = sess.run([train_op, loss_op], feed_dict=feed_dict)
+        _, l, predic = sess.run([train_op, loss_op, decoder_op], feed_dict=feed_dict)
         if i % display_step == 0 or i == 1:
             print('Step %i, Loss: %f' % (i, l))
             print('batch_x.shape:', batch_x.shape)
             print('tmp_latent.shape:', tmp_latent.shape)
+            print('predic.shape:', predic.shape)
 
     # Testing
     # Generator takes noise as input
