@@ -154,7 +154,7 @@ with tf.Session() as sess:
         # run encoder
         tmp_latent = sess.run( encoder_op, feed_dict={input_image: batch_x} )
         # run error on decoder
-        feed_dict = {Z: tmp_latent}
+        feed_dict = {input_image: batch_x, Z: tmp_latent}
         _, l = sess.run([train_op, loss_op], feed_dict=feed_dict)
         if i % display_step == 0 or i == 1:
             print('Step %i, Loss: %f' % (i, l))
