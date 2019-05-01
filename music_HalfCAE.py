@@ -39,6 +39,9 @@ batch_size = 256
 
 display_step = 100
 examples_to_show = 10
+# Network Parameters
+num_hidden_1 = 256 # 1st layer num features - trains fine for even fewer
+num_hidden_2 = 64 # 2nd layer num features - trains fine for even fewer
 num_input = rows*columns
 
 # __MAX__
@@ -62,23 +65,26 @@ while batch_idx_end < serialised_segments.shape[0]:
     tmp_counter += 1
 
 # tf Graph input (only pictures)
-X = tf.placeholder("float", [None, rows, columns, 1])
+X = tf.placeholder("float", [None, num_input])
+
+weights = {
+    'encoder_h1': tf.Variable(tf.random_normal([num_input, num_hidden_1])),
+    'encoder_h2': tf.Variable(tf.random_normal([num_hidden_1, num_hidden_2])),
+}
+biases = {
+    'encoder_b1': tf.Variable(tf.random_normal([num_hidden_1])),
+    'encoder_b2': tf.Variable(tf.random_normal([num_hidden_2])),
+}
 
 # Building the encoder
 def encoder(x):
-    # Typical convolutional neural network to classify images.
-    x = tf.layers.conv2d(x, 64, 5)
-    x = tf.nn.tanh(x)
-    x = tf.layers.average_pooling2d(x, 2, 2)
-    x = tf.layers.conv2d(x, 128, 5)
-    x = tf.nn.tanh(x)
-    x = tf.layers.average_pooling2d(x, 2, 2)
-    x = tf.contrib.layers.flatten(x)
-    x = tf.layers.dense(x, 1024)
-    x = tf.nn.tanh(x)
-    # Output 2 classes: Real and Fake images
-    x = tf.layers.dense(x, 2)
-    return x
+    # Encoder Hidden layer with sigmoid activation #1
+    layer_1 = tf.nn.sigmoid(tf.add(tf.matmul(x, weights['encoder_h1']),
+                                   biases['encoder_b1']))
+    # Encoder Hidden layer with sigmoid activation #2
+    layer_2 = tf.nn.sigmoid(tf.add(tf.matmul(layer_1, weights['encoder_h2']),
+                                   biases['encoder_b2']))
+    return layer_2
 
 
 # Building the decoder
@@ -96,6 +102,8 @@ def decoder(x):
     x = tf.layers.conv2d_transpose(x, 1, [3,2], strides=2)
     # Apply sigmoid to clip values between 0 and 1
     x = tf.nn.sigmoid(x)
+    # back to flat
+    x = tf.reshape( x , [ -1, rows*columns] )
     return x
 
 # Construct model
@@ -131,7 +139,7 @@ with tf.Session() as sess:
         batch_x = batches_train[ batch_idx ]
         batch_idx += 1
         batch_idx = batch_idx%len(batches_train)
-        batch_x = np.reshape(batch_x, newshape=[-1, rows, columns, 1])
+        # batch_x = np.reshape(batch_x, newshape=[-1, rows, columns, 1])
 
         # Run optimization op (backprop) and cost op (to get loss value)
         _, l = sess.run([optimizer, loss], feed_dict={X: batch_x})
@@ -152,7 +160,7 @@ with tf.Session() as sess:
         batch_x = batches_test[ batch_idx ][:n,:]
         batch_idx += 1
         batch_idx = batch_idx%len(batches_test)
-        batch_x_reshaped = np.reshape(batch_x, newshape=[-1, rows, columns, 1])
+        # batch_x_reshaped = np.reshape(batch_x, newshape=[-1, rows, columns, 1])
         # Encode and decode the digit image
         g = sess.run(decoder_op, feed_dict={X: batch_x_reshaped})
 
