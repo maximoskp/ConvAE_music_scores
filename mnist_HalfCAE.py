@@ -29,6 +29,8 @@ display_step = 100
 examples_to_show = 10
 
 # Network Parameters
+num_hidden_1 = 256 # 1st layer num features
+num_hidden_2 = 128 # 2nd layer num features (the latent dim)
 rows = 28
 columns = 28
 num_input = rows*columns # MNIST data input (img shape: 28*28)
