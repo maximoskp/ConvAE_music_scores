@@ -152,7 +152,7 @@ with tf.Session() as sess:
 
         # Train
         # run encoder
-        tmp_latent, tmp_z_mean, tmp_z_std = sess.run( encoder_op, feed_dict={input_image: batch_x} )
+        tmp_latent, *_, *_ = sess.run( encoder_op, feed_dict={input_image: batch_x} )
         # run error on decoder
         feed_dict = {Z: tmp_latent}
         _, l = sess.run([train_op, loss_op], feed_dict=feed_dict)
