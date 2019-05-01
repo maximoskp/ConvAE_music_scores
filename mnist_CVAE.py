@@ -142,10 +142,6 @@ with tf.Session() as sess:
     decoder = tf.nn.tanh(decoder)
     # decoder = tf.matmul(decoder, weights['decoder_out']) + biases['decoder_out']
     # decoder = tf.nn.sigmoid(decoder)
-    # constructing a dummy feed_dict
-    batch_x, _ = mnist.train.next_batch(batch_size)
-    feed_dict = {input_image: batch_x}
-    decoder = sess.run( conv_decoder(decoder), feed_dict=feed_dict )
 
     # Building a manifold of generated digits
     n = 20
@@ -156,7 +152,7 @@ with tf.Session() as sess:
     for i, yi in enumerate(x_axis):
         for j, xi in enumerate(y_axis):
             z_mu = np.array([[xi, yi]] * batch_size)
-            x_mean = sess.run(decoder, feed_dict={noise_input: z_mu})
+            x_mean = sess.run(conv_decoder(decoder), feed_dict={noise_input: z_mu})
             canvas[(n - i - 1) * 28:(n - i) * 28, j * 28:(j + 1) * 28] = \
             x_mean[0].reshape(28, 28)
 
