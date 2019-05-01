@@ -47,15 +47,34 @@ weights = {
     'z_mean': tf.Variable(glorot_init([hidden_dim, latent_dim])),
     'z_std': tf.Variable(glorot_init([hidden_dim, latent_dim])),
     'decoder_h1': tf.Variable(glorot_init([latent_dim, hidden_dim])),
-    'decoder_out': tf.Variable(glorot_init([hidden_dim, image_dim]))
+    # 'decoder_out': tf.Variable(glorot_init([hidden_dim, image_dim]))
 }
 biases = {
     'encoder_b1': tf.Variable(glorot_init([hidden_dim])),
     'z_mean': tf.Variable(glorot_init([latent_dim])),
     'z_std': tf.Variable(glorot_init([latent_dim])),
     'decoder_b1': tf.Variable(glorot_init([hidden_dim])),
-    'decoder_out': tf.Variable(glorot_init([image_dim]))
+    # 'decoder_out': tf.Variable(glorot_init([image_dim]))
 }
+
+# Building the decoder
+def conv_decoder(x):
+    # TensorFlow Layers automatically create variables and calculate their
+    # shape, based on the input.
+    x = tf.layers.dense(x, units=6 * 6 * 128)
+    x = tf.nn.tanh(x)
+    # Reshape to a 4-D array of images: (batch, height, width, channels)
+    # New shape: (batch, 6, 6, 128)
+    x = tf.reshape(x, shape=[-1, 6, 6, 128])
+    # Deconvolution, image shape: (batch, 14, 14, 64)
+    x = tf.layers.conv2d_transpose(x, 64, 4, strides=2)
+    # Deconvolution, image shape: (batch, 28, 28, 1)
+    x = tf.layers.conv2d_transpose(x, 1, 2, strides=2)
+    # Apply sigmoid to clip values between 0 and 1
+    x = tf.nn.sigmoid(x)
+    # back to flat
+    x = tf.reshape( x , [ -1, rows*columns] )
+    return x
 
 # Building the encoder
 input_image = tf.placeholder(tf.float32, shape=[None, image_dim])
@@ -72,8 +91,9 @@ z = z_mean + tf.exp(z_std / 2) * eps
 # Building the decoder (with scope to re-use these layers later)
 decoder = tf.matmul(z, weights['decoder_h1']) + biases['decoder_b1']
 decoder = tf.nn.tanh(decoder)
-decoder = tf.matmul(decoder, weights['decoder_out']) + biases['decoder_out']
-decoder = tf.nn.sigmoid(decoder)
+# decoder = tf.matmul(decoder, weights['decoder_out']) + biases['decoder_out']
+# decoder = tf.nn.sigmoid(decoder)
+decoder = conv_decoder(decoder)
 
 
 # Define VAE Loss
@@ -137,5 +157,5 @@ with tf.Session() as sess:
     plt.figure(figsize=(8, 10))
     Xi, Yi = np.meshgrid(x_axis, y_axis)
     plt.imshow(canvas, origin="upper", cmap="gray")
-    plt.savefig('figs/VAE_mnist.png', dpi=300); plt.clf()
+    plt.savefig('figs/CVAE_mnist.png', dpi=300); plt.clf()
     # plt.show()
