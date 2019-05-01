@@ -52,14 +52,14 @@ weights = {
     'z_mean': tf.Variable(glorot_init([hidden_dim, latent_dim])),
     'z_std': tf.Variable(glorot_init([hidden_dim, latent_dim])),
     'decoder_h1': tf.Variable(glorot_init([latent_dim, hidden_dim])),
-    # 'decoder_out': tf.Variable(glorot_init([hidden_dim, image_dim]))
+    'decoder_out': tf.Variable(glorot_init([hidden_dim, image_dim]))
 }
 biases = {
     'encoder_b1': tf.Variable(glorot_init([hidden_dim])),
     'z_mean': tf.Variable(glorot_init([latent_dim])),
     'z_std': tf.Variable(glorot_init([latent_dim])),
     'decoder_b1': tf.Variable(glorot_init([hidden_dim])),
-    # 'decoder_out': tf.Variable(glorot_init([image_dim]))
+    'decoder_out': tf.Variable(glorot_init([image_dim]))
 }
 
 def encoder(x):
@@ -76,21 +76,23 @@ def encoder(x):
 def decoder(x):
     x = tf.matmul(x, weights['decoder_h1']) + biases['decoder_b1']
     x = tf.nn.tanh(x)
-    # TensorFlow Layers automatically create variables and calculate their
-    # shape, based on the input.
-    x = tf.layers.dense(x, units=6 * 6 * 128)
-    x = tf.nn.tanh(x)
-    # Reshape to a 4-D array of images: (batch, height, width, channels)
-    # New shape: (batch, 6, 6, 128)
-    x = tf.reshape(x, shape=[-1, 6, 6, 128])
-    # Deconvolution, image shape: (batch, 14, 14, 64)
-    x = tf.layers.conv2d_transpose(x, 64, 4, strides=2)
-    # Deconvolution, image shape: (batch, 28, 28, 1)
-    x = tf.layers.conv2d_transpose(x, 1, 2, strides=2)
-    # Apply sigmoid to clip values between 0 and 1
+    x = tf.matmul(x, weights['decoder_out']) + biases['decoder_out']
     x = tf.nn.sigmoid(x)
-    # back to flat
-    x = tf.reshape( x , [ -1, rows*columns] )
+    # # TensorFlow Layers automatically create variables and calculate their
+    # # shape, based on the input.
+    # x = tf.layers.dense(x, units=6 * 6 * 128)
+    # x = tf.nn.tanh(x)
+    # # Reshape to a 4-D array of images: (batch, height, width, channels)
+    # # New shape: (batch, 6, 6, 128)
+    # x = tf.reshape(x, shape=[-1, 6, 6, 128])
+    # # Deconvolution, image shape: (batch, 14, 14, 64)
+    # x = tf.layers.conv2d_transpose(x, 64, 4, strides=2)
+    # # Deconvolution, image shape: (batch, 28, 28, 1)
+    # x = tf.layers.conv2d_transpose(x, 1, 2, strides=2)
+    # # Apply sigmoid to clip values between 0 and 1
+    # x = tf.nn.sigmoid(x)
+    # # back to flat
+    # x = tf.reshape( x , [ -1, rows*columns] )
     return x
 
 
@@ -158,10 +160,10 @@ with tf.Session() as sess:
         _, l, predic = sess.run([train_op, loss_op, decoder_op], feed_dict=feed_dict)
         if i % display_step == 0 or i == 1:
             print('Step %i, Loss: %f' % (i, l))
-            print(batch_x[0,:].reshape(28,28))
-            print('=========================================')
+            # print(batch_x[0,:].reshape(28,28))
+            # print('=========================================')
             # print('tmp_latent.shape:', tmp_latent.shape)
-            print(predic[0,:].reshape(28,28))
+            # print(predic[0,:].reshape(28,28))
 
     # Testing
     # Generator takes noise as input
