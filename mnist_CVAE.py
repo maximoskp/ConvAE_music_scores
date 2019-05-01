@@ -91,6 +91,7 @@ def decoder(x):
     x = tf.nn.sigmoid(x)
     # back to flat
     x = tf.reshape( x , [ -1, rows*columns] )
+    print('x: ', x)
     return x
 
 
