@@ -30,6 +30,7 @@ mnist = input_data.read_data_sets("/tmp/data/", one_hot=True)
 # Parameters
 learning_rate = 0.001
 num_steps = 1000
+display_step = 100
 batch_size = 64
 
 # Network Parameters
@@ -78,6 +79,7 @@ def conv_decoder(x):
     x = tf.reshape( x , [ -1, rows*columns] )
     return x
 
+
 # Building the encoder
 input_image = tf.placeholder(tf.float32, shape=[None, image_dim])
 encoder = tf.matmul(input_image, weights['encoder_h1']) + biases['encoder_b1']
@@ -96,7 +98,6 @@ decoder = tf.nn.tanh(decoder)
 # decoder = tf.matmul(decoder, weights['decoder_out']) + biases['decoder_out']
 # decoder = tf.nn.sigmoid(decoder)
 decoder = conv_decoder(decoder)
-
 
 # Define VAE Loss
 def vae_loss(x_reconstructed, x_true):
@@ -130,18 +131,18 @@ with tf.Session() as sess:
         # Train
         feed_dict = {input_image: batch_x}
         _, l = sess.run([train_op, loss_op], feed_dict=feed_dict)
-        if i % 1000 == 0 or i == 1:
+        if i % display_step == 0 or i == 1:
             print('Step %i, Loss: %f' % (i, l))
 
     # Testing
     # Generator takes noise as input
     noise_input = tf.placeholder(tf.float32, shape=[None, latent_dim])
-    # Rebuild the decoder to create image from noise
+    Rebuild the decoder to create image from noise
     decoder = tf.matmul(noise_input, weights['decoder_h1']) + biases['decoder_b1']
     decoder = tf.nn.tanh(decoder)
     # decoder = tf.matmul(decoder, weights['decoder_out']) + biases['decoder_out']
     # decoder = tf.nn.sigmoid(decoder)
-    decoder = conv_decoder(decoder)
+    decoder = sess.run( conv_decoder(decoder) )
 
     # Building a manifold of generated digits
     n = 20
