@@ -162,7 +162,7 @@ with tf.Session() as sess:
         batch_idx = batch_idx%len(batches_test)
         # batch_x_reshaped = np.reshape(batch_x, newshape=[-1, rows, columns, 1])
         # Encode and decode the digit image
-        g = sess.run(decoder_op, feed_dict={X: batch_x_reshaped})
+        g = sess.run(decoder_op, feed_dict={X: batch_x})
 
         # Display original images
         for j in range(n):
