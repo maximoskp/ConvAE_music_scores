@@ -137,7 +137,7 @@ with tf.Session() as sess:
     # Testing
     # Generator takes noise as input
     noise_input = tf.placeholder(tf.float32, shape=[None, latent_dim])
-    Rebuild the decoder to create image from noise
+    # Rebuild the decoder to create image from noise
     decoder = tf.matmul(noise_input, weights['decoder_h1']) + biases['decoder_b1']
     decoder = tf.nn.tanh(decoder)
     # decoder = tf.matmul(decoder, weights['decoder_out']) + biases['decoder_out']
