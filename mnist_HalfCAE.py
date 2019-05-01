@@ -73,6 +73,8 @@ def decoder(x):
     x = tf.layers.conv2d_transpose(x, 1, 2, strides=2)
     # Apply sigmoid to clip values between 0 and 1
     x = tf.nn.sigmoid(x)
+    # back to flat
+    x.reshape( rows*columns )
     return x
 
 # Construct model
