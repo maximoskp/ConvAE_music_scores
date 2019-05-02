@@ -126,6 +126,7 @@ y_true = input_image
 # Define VAE Loss
 def vae_loss(x_reconstructed, x_true, z_mean, z_std):
     # Reconstruction loss
+    tf.Print(z_mean, [z_mean], 'z_mean: ')
     encode_decode_loss = x_true * tf.log(1e-10 + x_reconstructed) \
                          + (1 - x_true) * tf.log(1e-10 + 1 - x_reconstructed)
     encode_decode_loss = -tf.reduce_sum(encode_decode_loss, 1)
