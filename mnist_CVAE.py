@@ -72,6 +72,20 @@ def encoder(x):
     z = z_mean + tf.exp(z_std / 2) * eps
     return z, z_mean, z_std
 
+def mean_fun(x):
+    x = tf.matmul(x, weights['z_mean']) + biases['z_mean']
+    return x
+
+def std_fun(x):
+    x = tf.matmul(x, weights['z_std']) + biases['z_std']
+    return x
+
+def sample_fun(x_m, x_s):
+    eps = tf.random_normal(tf.shape(x_s), dtype=tf.float32, mean=0., stddev=1.0,
+                            name='epsilon')
+    z = x_m + tf.exp(x_s / 2) * eps
+    return z
+
 # Building the decoder
 def decoder(x):
     x = tf.matmul(x, weights['decoder_h1']) + biases['decoder_b1']
@@ -114,7 +128,14 @@ def decoder(x):
 # decoder = tf.nn.sigmoid(decoder)
 # decoder = conv_decoder(decoder)
 
-encoder_op, encoder_z_mean, encoder_z_std = encoder(input_image)
+encoder_op = encoder(input_image)
+
+encoded_var = tf.placeholder(tf.float32, shape=[None, latent_dim])
+encoder_z_mean = mean_fun( encoded_var )
+encoder_z_std = std_fun( encoded_var )
+
+encoder_z_sample = sample_fun( encoder_z_mean, encoder_z_std )
+
 Z = tf.placeholder(tf.float32, shape=[None, latent_dim])
 decoder_op = decoder(Z)
 
@@ -154,19 +175,13 @@ with tf.Session() as sess:
 
         # Train
         # run encoder
-        (tmp_latent, tmp_mean, tmp_std) = sess.run( encoder_op, feed_dict={input_image: batch_x} )
+        tmp_latent = sess.run( encoder_op, feed_dict={input_image: batch_x} )
+        tmp_mean, tmp_std, tmp_sample = sess.run( [encoder_z_mean, encoder_z_std, sample_fun], feed_dict={encoded_var: tmp_latent} )
         # run error on decoder
-        feed_dict = {input_image: batch_x, Z: tmp_latent}
-        _, l, z_m, z_s, ii = sess.run([train_op, loss_op, encoder_z_mean, encoder_z_std, input_image], feed_dict=feed_dict)
+        feed_dict = {input_image: batch_x, Z: tmp_sample}
+        _, l = sess.run([train_op, loss_op], feed_dict=feed_dict)
         if i % display_step == 0 or i == 1:
             print('Step %i, Loss: %f' % (i, l))
-            print('np.mean(z_m): ', np.mean(z_m))
-            print('np.mean(z_s): ', np.mean(z_s))
-            print('should be zero: ', np.mean(ii - batch_x))
-            # print(batch_x[0,:].reshape(28,28))
-            # print('=========================================')
-            # print('tmp_latent.shape:', tmp_latent.shape)
-            # print(predic[0,:].reshape(28,28))
 
     # Testing
     # Generator takes noise as input
