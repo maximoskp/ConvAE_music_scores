@@ -157,10 +157,11 @@ with tf.Session() as sess:
         tmp_latent = sess.run( encoder_op, feed_dict={input_image: batch_x} )
         # run error on decoder
         feed_dict = {input_image: batch_x, Z: tmp_latent}
-        _, l, z_m = sess.run([train_op, loss_op, encoder_z_mean], feed_dict=feed_dict)
+        _, l, z_m, z_s = sess.run([train_op, loss_op, encoder_z_mean, encoder_z_std], feed_dict=feed_dict)
         if i % display_step == 0 or i == 1:
             print('Step %i, Loss: %f' % (i, l))
-            print('z_m: ', z_m)
+            print('z_m.shape: ', z_m.shape)
+            print('z_s.shape: ', z_s.shape)
             # print(batch_x[0,:].reshape(28,28))
             # print('=========================================')
             # print('tmp_latent.shape:', tmp_latent.shape)
