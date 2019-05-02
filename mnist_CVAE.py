@@ -130,7 +130,7 @@ def decoder(x):
 
 encoder_op = encoder(input_image)
 
-encoded_var = tf.placeholder(tf.float32, shape=[None, image_dim, latent_dim])
+encoded_var = tf.placeholder(tf.float32, shape=[None, hidden_dim, latent_dim])
 encoder_z_mean = mean_fun( encoded_var )
 encoder_z_std = std_fun( encoded_var )
 
