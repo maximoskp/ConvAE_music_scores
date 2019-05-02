@@ -29,7 +29,7 @@ mnist = input_data.read_data_sets("/tmp/data/", one_hot=True)
 
 # Parameters
 learning_rate = 0.001
-num_steps = 30000
+num_steps = 1000
 display_step = 100
 batch_size = 64
 
@@ -126,7 +126,6 @@ y_true = input_image
 # Define VAE Loss
 def vae_loss(x_reconstructed, x_true, z_mean, z_std):
     # Reconstruction loss
-    tf.Print(z_mean, [z_mean], 'z_mean: ')
     encode_decode_loss = x_true * tf.log(1e-10 + x_reconstructed) \
                          + (1 - x_true) * tf.log(1e-10 + 1 - x_reconstructed)
     encode_decode_loss = -tf.reduce_sum(encode_decode_loss, 1)
@@ -158,9 +157,10 @@ with tf.Session() as sess:
         tmp_latent = sess.run( encoder_op, feed_dict={input_image: batch_x} )
         # run error on decoder
         feed_dict = {input_image: batch_x, Z: tmp_latent}
-        _, l, predic = sess.run([train_op, loss_op, decoder_op], feed_dict=feed_dict)
+        _, l, z_m = sess.run([train_op, loss_op, encoder_z_mean], feed_dict=feed_dict)
         if i % display_step == 0 or i == 1:
             print('Step %i, Loss: %f' % (i, l))
+            print('z_m: ', z_m)
             # print(batch_x[0,:].reshape(28,28))
             # print('=========================================')
             # print('tmp_latent.shape:', tmp_latent.shape)
