@@ -185,7 +185,7 @@ with tf.Session() as sess:
         _, l = sess.run([train_op, loss_op], feed_dict=feed_dict)
         if i % display_step == 0 or i == 1:
             print('Step %i, Loss: %f' % (i, l))
-            print('np.mean( weigths[encoder_h1] ): ', np.mean( sess.run( weigths['encoder_h1'] ) ))
+            print('np.mean( weights[encoder_h1] ): ', np.mean( sess.run( weights['encoder_h1'] ) ))
 
     # Testing
     # Generator takes noise as input
