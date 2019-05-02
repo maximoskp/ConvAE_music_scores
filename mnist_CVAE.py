@@ -155,7 +155,10 @@ def vae_loss(x_reconstructed, x_true, z_mean, z_std):
     kl_div_loss = -0.5 * tf.reduce_sum(kl_div_loss, 1)
     return tf.reduce_mean(encode_decode_loss + kl_div_loss)
 
-loss_op = vae_loss(y_pred, y_true, encoder_z_mean, encoder_z_std)
+mean_var = tf.placeholder(tf.float32, shape=[None, latent_dim])
+std_var = tf.placeholder(tf.float32, shape=[None, latent_dim])
+
+loss_op = vae_loss(y_pred, y_true, mean_var, std_var)
 optimizer = tf.train.RMSPropOptimizer(learning_rate=learning_rate)
 train_op = optimizer.minimize(loss_op)
 
@@ -179,7 +182,7 @@ with tf.Session() as sess:
         print('tmp_latent.shape: ', tmp_latent.shape)
         tmp_mean, tmp_std, tmp_sample = sess.run( [encoder_z_mean, encoder_z_std, encoder_z_sample], feed_dict={encoded_var: tmp_latent} )
         # run error on decoder
-        feed_dict = {input_image: batch_x, Z: tmp_sample}
+        feed_dict = {input_image: batch_x, Z: tmp_sample, mean_var: tmp_mean, std_var: tmp_std}
         _, l = sess.run([train_op, loss_op], feed_dict=feed_dict)
         if i % display_step == 0 or i == 1:
             print('Step %i, Loss: %f' % (i, l))
