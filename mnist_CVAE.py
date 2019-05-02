@@ -65,12 +65,12 @@ biases = {
 def encoder(x):
     x = tf.matmul(x, weights['encoder_h1']) + biases['encoder_b1']
     x = tf.nn.tanh(x)
-    z_mean = tf.matmul(x, weights['z_mean']) + biases['z_mean']
-    z_std = tf.matmul(x, weights['z_std']) + biases['z_std']
-    eps = tf.random_normal(tf.shape(z_std), dtype=tf.float32, mean=0., stddev=1.0,
-                            name='epsilon')
-    z = z_mean + tf.exp(z_std / 2) * eps
-    return z, z_mean, z_std
+    # z_mean = tf.matmul(x, weights['z_mean']) + biases['z_mean']
+    # z_std = tf.matmul(x, weights['z_std']) + biases['z_std']
+    # eps = tf.random_normal(tf.shape(z_std), dtype=tf.float32, mean=0., stddev=1.0,
+    #                         name='epsilon')
+    # z = z_mean + tf.exp(z_std / 2) * eps
+    return x
 
 def mean_fun(x):
     x = tf.matmul(x, weights['z_mean']) + biases['z_mean']
