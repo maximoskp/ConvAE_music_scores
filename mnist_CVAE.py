@@ -29,7 +29,7 @@ mnist = input_data.read_data_sets("/tmp/data/", one_hot=True)
 
 # Parameters
 learning_rate = 0.001
-num_steps = 1000
+num_steps = 10000
 display_step = 100
 batch_size = 64
 
@@ -160,8 +160,8 @@ with tf.Session() as sess:
         _, l, z_m, z_s = sess.run([train_op, loss_op, encoder_z_mean, encoder_z_std], feed_dict=feed_dict)
         if i % display_step == 0 or i == 1:
             print('Step %i, Loss: %f' % (i, l))
-            print('z_m.shape: ', z_m.shape)
-            print('z_s.shape: ', z_s.shape)
+            print('np.mean(z_m): ', np.mean(z_m))
+            print('np.mean(z_s): ', np.mean(z_s))
             # print(batch_x[0,:].reshape(28,28))
             # print('=========================================')
             # print('tmp_latent.shape:', tmp_latent.shape)
