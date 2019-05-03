@@ -136,8 +136,9 @@ encoder_z_std = std_fun( encoded_var )
 
 encoder_z_sample = sample_fun( encoder_z_mean, encoder_z_std )
 
-Z = tf.placeholder(tf.float32, shape=[None, latent_dim])
-decoder_op = decoder(Z)
+# Z is defined later, for running examples
+# Z = tf.placeholder(tf.float32, shape=[None, latent_dim])
+decoder_op = decoder(encoder_z_sample)
 
 # Prediction
 y_pred = decoder_op
@@ -207,6 +208,7 @@ with tf.Session() as sess:
         for j, xi in enumerate(y_axis):
             z_mu = np.array([[xi, yi]] * batch_size)
             # x_mean = sess.run(decoder, feed_dict={noise_input: z_mu})
+            Z = tf.placeholder(tf.float32, shape=[None, latent_dim])
             x_mean = sess.run(decoder_op, feed_dict={Z: z_mu})
             canvas[(n - i - 1) * 28:(n - i) * 28, j * 28:(j + 1) * 28] = \
             x_mean[0].reshape(28, 28)
