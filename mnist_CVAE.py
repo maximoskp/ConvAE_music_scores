@@ -182,7 +182,7 @@ with tf.Session() as sess:
         tmp_latent = sess.run( encoder_op, feed_dict={input_image: batch_x} )
         tmp_mean, tmp_std, tmp_sample = sess.run( [encoder_z_mean, encoder_z_std, encoder_z_sample], feed_dict={encoded_var: tmp_latent} )
         # run error on decoder
-        feed_dict = {input_image: batch_x, Z: tmp_sample, mean_var: tmp_mean, std_var: tmp_std}
+        feed_dict = {input_image: batch_x, mean_var: tmp_mean, std_var: tmp_std}
         _, l = sess.run([train_op, loss_op], feed_dict=feed_dict)
         if i % display_step == 0 or i == 1:
             print('Step %i, Loss: %f' % (i, l))
