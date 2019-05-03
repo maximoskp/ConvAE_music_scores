@@ -109,6 +109,12 @@ def decoder(x):
     # x = tf.reshape( x , [ -1, rows*columns] )
     return x
 
+def fixed_decoder(x, w_h1, b_h1, w_out, b_out):
+    x = tf.matmul(x, w_h1) + b_h1
+    x = tf.nn.tanh(x)
+    x = tf.matmul(x, w_out) + b_out
+    x = tf.nn.sigmoid(x)
+    return x
 
 # Building the encoder
 # encoder = tf.matmul(input_image, weights['encoder_h1']) + biases['encoder_b1']
