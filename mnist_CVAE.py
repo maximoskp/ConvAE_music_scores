@@ -134,8 +134,8 @@ encoder_op = encoder(input_image)
 # encoder_z_mean = mean_fun( encoded_var )
 # encoder_z_std = std_fun( encoded_var )
 
-encoder_z_mean = mean_fun( encoded_op )
-encoder_z_std = std_fun( encoded_op )
+encoder_z_mean = mean_fun( encoder_op )
+encoder_z_std = std_fun( encoder_op )
 
 encoder_z_sample = sample_fun( encoder_z_mean, encoder_z_std )
 
