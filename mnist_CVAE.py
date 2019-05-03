@@ -130,9 +130,12 @@ def decoder(x):
 
 encoder_op = encoder(input_image)
 
-encoded_var = tf.placeholder(tf.float32, shape=[None, hidden_dim])
-encoder_z_mean = mean_fun( encoded_var )
-encoder_z_std = std_fun( encoded_var )
+# encoded_var = tf.placeholder(tf.float32, shape=[None, hidden_dim])
+# encoder_z_mean = mean_fun( encoded_var )
+# encoder_z_std = std_fun( encoded_var )
+
+encoder_z_mean = mean_fun( encoded_op )
+encoder_z_std = std_fun( encoded_op )
 
 encoder_z_sample = sample_fun( encoder_z_mean, encoder_z_std )
 
@@ -179,10 +182,11 @@ with tf.Session() as sess:
 
         # Train
         # run encoder
-        tmp_latent = sess.run( encoder_op, feed_dict={input_image: batch_x} )
-        tmp_mean, tmp_std, tmp_sample = sess.run( [encoder_z_mean, encoder_z_std, encoder_z_sample], feed_dict={encoded_var: tmp_latent} )
+        # tmp_latent = sess.run( encoder_op, feed_dict={input_image: batch_x} )
+        # tmp_mean, tmp_std, tmp_sample = sess.run( [encoder_z_mean, encoder_z_std, encoder_z_sample], feed_dict={encoded_var: tmp_latent} )
         # run error on decoder
-        feed_dict = {input_image: batch_x, mean_var: tmp_mean, std_var: tmp_std}
+        # feed_dict = {input_image: batch_x, mean_var: tmp_mean, std_var: tmp_std, encoded_var: tmp_latent}
+        feed_dict = {input_image: batch_x}
         _, l = sess.run([train_op, loss_op], feed_dict=feed_dict)
         if i % display_step == 0 or i == 1:
             print('Step %i, Loss: %f' % (i, l))
